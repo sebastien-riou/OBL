@@ -1,0 +1,30 @@
+#!/bin/bash
+
+bits=64
+
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+    os="linux"
+elif [[ "$OSTYPE" == "cygwin" ]]; then
+    os="linux"
+elif [[ "$OSTYPE" == "msys" ]]; then
+    os="windows"
+elif [[ "$OSTYPE" == "win32" ]]; then
+    os="windows"
+fi
+
+if [[ "$os" == "windows" ]]; then
+    d=""
+    if [[ "$bits" == "32" ]]; then
+        gcc=i686-w64-mingw32-gcc
+    else
+        gcc=x86_64-w64-mingw32-gcc
+    fi
+else
+    d=""
+    gcc=gcc
+fi
+
+set -e
+set -x
+$gcc -m$bits -I../include $d main_console.c -o test_console
+$gcc -m$bits -I../include $d main_socket.c -o test_socket
