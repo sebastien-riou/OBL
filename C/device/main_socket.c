@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <assert.h>
-
+#include <threads.h>
 #include <stdint.h>
 
 #include "portable_socket.h"
@@ -14,7 +14,8 @@ static void obl_putchar(char c){
 }
 static char obl_getchar(){
   char c;
-  recv(sockfd, &c, 1, MSG_WAITALL);
+  int status = recv(sockfd, &c, 1, MSG_WAITALL);
+  if(status<=0) exit(status);
   return c;
 }
 
@@ -35,6 +36,6 @@ int main(int argc, char *argv[]){
     printf("Entering OBL\n");
     obl_main();
     printf("OBL exited\n");
-
+    thrd_sleep(&(struct timespec){.tv_sec=1}, NULL); // sleep 1 sec
     return 0;
 }

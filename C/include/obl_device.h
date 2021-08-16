@@ -163,8 +163,12 @@ static int obl_receive_cmd(uint16_t*cmd){
 	*cmd = OBL_CMD_INVALID;
   uint8_t sep[]={'\r','\n',' '};
   uint8_t buf[4+1+1+1];
-  uint32_t len=obl_get_until(buf, sizeof(buf),sep,sizeof(sep));
-	if(0==len) return OBL_RECEIVE_EMPTY;
+  uint32_t len;
+	do{
+  	len=obl_get_until(buf, sizeof(buf),sep,sizeof(sep));
+		printf("obl_receive_cmd: len=%d, '%s'\n",len,buf);
+		if(0==len) return OBL_RECEIVE_EMPTY;
+	}while(buf[0]=='\n');
 	char s=buf[len-1];
 	buf[len-1]=0;
 	for(unsigned int i=0;i<obl_commands_count;i++){
@@ -192,7 +196,7 @@ static void obl_send_status(const char*status){
 	//obl_send_str("\n");//sent by prompt
 }
 
-static void obl_main(){
+static int obl_main(){
 	const char*ok=OBL_OK;
 	const char*ko=OBL_KO;
   uint64_t stack_buf[4];
@@ -206,6 +210,7 @@ static void obl_main(){
     int status = obl_receive_cmd(&cmd);
 		if(status) error=status;
 		unsigned int access_unit = cmd & 0xFF;
+		printf("access_unit=%d\n",access_unit);
 		do{
 	    //common 1st arg
 	    switch(cmd){
@@ -229,8 +234,9 @@ static void obl_main(){
 	      if(obl_receive_num(&len)) break;
 	      if(len>OBL_DATA_SIZE_LIMIT) break;
 				obl_send_status(ok);
-				for(unsigned int i=0;i<len;i++){
-					uint64_t buf;
+				unsigned int incr = access_unit>>3;
+				for(unsigned int i=0;i<len;i+=incr){
+					uint64_t buf=0;
 					switch(access_unit){
 					case 8:
 						obl_read8((uint8_t*)&buf,addr);
@@ -248,7 +254,7 @@ static void obl_main(){
 	        for(unsigned int i=0;i<access_unit;i+=8){
 	          obl_send_data_byte(buf>>i);
 	        }
-					addr+=access_unit>>3;
+					addr+=incr;
 				}
 				error=0;
 				break;
@@ -261,9 +267,7 @@ static void obl_main(){
 					unsigned int bytes_cnt=0;
 	        for(unsigned int i=0;i<access_unit;i+=8){
 					  uint8_t b;
-						printf("\nread data byte\n");
 						int status = obl_receive_data_byte(&b);
-						printf("status=%x\n",status);
 						if(status!=OBL_SUCCESS) {
 							error=status;
 							break;
@@ -279,13 +283,12 @@ static void obl_main(){
 							break;
 						}
 	        }
-					printf("error=%x\n",error);
 					if(error!=OBL_ERROR_NOT_SET) {
 						if(error!=OBL_RECEIVE_EMPTY) break;
 						error = OBL_SUCCESS;
 						if(0==bytes_cnt) break;
 					}
-					printf("do write access\n");
+					//printf("do write access\n");
 	      	switch(access_unit){
 					case 8:
 						obl_write8(buf,addr);
@@ -308,11 +311,18 @@ static void obl_main(){
 	      if(obl_call(addr)) obl_send_status(ok);
 				error=OBL_SUCCESS;
 	      break;
-			case OBL_CMD_EXIT:
-	      obl_send_status(ok);error=OBL_SUCCESS;
+			case OBL_CMD_EXIT:{
+				uint8_t b;
+				int status = obl_receive_data_byte(&b);
+				if(status!=OBL_SUCCESS) {
+					error=status;
+					break;
+				}
+				obl_send_status(ok);error=OBL_SUCCESS;
 				obl_putchar('\n');
-				return;
-				break;
+				char r = (char)b;
+				return r;
+				break;}
 	    case OBL_CMD_INFO:
 	      obl_send_status(ok);error=OBL_SUCCESS;
 	      obl_send_str(" stack_buf=0x");
@@ -328,4 +338,5 @@ static void obl_main(){
 			obl_send_hex64(error);
 		}
   }
+	return -1;//shall never happen
 }
