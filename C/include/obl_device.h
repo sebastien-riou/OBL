@@ -315,9 +315,9 @@ static void obl_main(){
 				break;
 	    case OBL_CMD_INFO:
 	      obl_send_status(ok);error=OBL_SUCCESS;
-	      obl_send_str(" stack_buf at 0x");
+	      obl_send_str(" stack_buf=0x");
 	      obl_send_hex64((uint64_t)stack_buf);
-	      obl_send_str(", obl_main at 0x");
+	      obl_send_str(", obl_main=0x");
 	      obl_send_hex64((uint64_t)obl_main);
 	      break;
 	    }
