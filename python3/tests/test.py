@@ -25,6 +25,15 @@ assert(dat[8:12]==o.read(addr=buf+8, size=4,access_width=16))
 assert(dat[8:12]==o.read(addr=buf+8, size=4,access_width=32))
 assert(dat[8:16]==o.read(addr=buf+8, size=8,access_width=64))
 
+o.write(addr=buf+2, data=dat, access_width=16)
+assert(dat==o.read(addr=buf+2,size=len(dat)))
 
+o.write(addr=buf+4, data=dat, access_width=32)
+assert(dat==o.read(addr=buf+4,size=len(dat)))
+
+o.write(addr=buf+8, data=dat, access_width=64)
+assert(dat==o.read(addr=buf+8,size=len(dat)))
 
 o.exit()
+
+print("test PASS")

@@ -87,7 +87,7 @@ class Obl(object):
     def _receive(self,length):
         out=self._com.rx(length).decode("utf-8")
         self.frame_rx+=out
-        print("received '%s'"%out)
+        #print("received '%s'"%out)
         return out
 
     def _send_cmd(self,cmd):

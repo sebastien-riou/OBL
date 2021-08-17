@@ -166,7 +166,7 @@ static int obl_receive_cmd(uint16_t*cmd){
   uint32_t len;
 	do{
   	len=obl_get_until(buf, sizeof(buf),sep,sizeof(sep));
-		printf("obl_receive_cmd: len=%d, '%s'\n",len,buf);
+		//printf("obl_receive_cmd: len=%d, '%s'\n",len,buf);
 		if(0==len) return OBL_RECEIVE_EMPTY;
 	}while(buf[0]=='\n');
 	char s=buf[len-1];
@@ -210,7 +210,7 @@ static int obl_main(){
     int status = obl_receive_cmd(&cmd);
 		if(status) error=status;
 		unsigned int access_unit = cmd & 0xFF;
-		printf("access_unit=%d\n",access_unit);
+		//printf("access_unit=%d\n",access_unit);
 		do{
 	    //common 1st arg
 	    switch(cmd){
