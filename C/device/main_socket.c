@@ -12,6 +12,7 @@ int sockfd = 0;
 static void obl_putchar(char c){
   send(sockfd, &c, 1,0);
 }
+static void obl_putchar_flush(){} //do nothing
 static char obl_getchar(){
   char c;
   int status = recv(sockfd, &c, 1, MSG_WAITALL);

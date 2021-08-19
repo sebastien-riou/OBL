@@ -23,6 +23,7 @@ static int obl_call(uintptr_t addr){
 #endif
 
 #ifndef OBL_CUSTOM_IO
+static void obl_putchar_flush(){fflush(stdout);}
 static void obl_putchar(char c){putchar(c);}
 static char obl_getchar(){return getchar();}
 #endif
@@ -337,6 +338,7 @@ static int obl_main(){
 			obl_putchar(' ');
 			obl_send_hex64(error);
 		}
+		obl_putchar_flush();
   }
 	return -1;//shall never happen
 }
