@@ -183,8 +183,8 @@ static int obl_receive_cmd(uint16_t*cmd){
 }
 
 static void obl_send_prompt(){
-	obl_putchar('\n');
-  obl_putchar('>');
+	obl_send_str("\n>");
+	obl_putchar_flush();
 }
 
 static void obl_send_data_byte(uint8_t b){
@@ -338,7 +338,6 @@ static int obl_main(){
 			obl_putchar(' ');
 			obl_send_hex64(error);
 		}
-		obl_putchar_flush();
   }
 	return -1;//shall never happen
 }
