@@ -131,7 +131,7 @@ static int obl_strtoul(uint64_t*dst, uint8_t*src, unsigned int len){
 	//len--;//remove sep
 	//src[len]=0;
 	if(0==len) return OBL_RECEIVE_EMPTY;
-	*dst = strtoul (src, NULL, 16);
+	*dst = strtoul ((char*)src, NULL, 16);
 	if(0==*dst){
 		for(unsigned int i=0;i<len;i++){
 			if(src[i]!='0') return OBL_ERROR_RECEIVE_CONV_FAIL;
@@ -173,7 +173,7 @@ static int obl_receive_cmd(uint16_t*cmd){
 	char s=buf[len-1];
 	buf[len-1]=0;
 	for(unsigned int i=0;i<obl_commands_count;i++){
-		if(strcmp(obl_commands[i].str,buf)==0) {
+		if(strcmp(obl_commands[i].str,(char*)buf)==0) {
       *cmd = obl_commands[i].opcode;
 			return OBL_SUCCESS;
     }
