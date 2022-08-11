@@ -6,7 +6,7 @@ import pysatl
 import select
 import os
 
-__version__ = '0.0.0'
+__version__ = '1.0.0'
 __title__ = 'obl'
 __description__ = 'Library to communicate with OBL'
 __long_description__ = """
@@ -29,9 +29,7 @@ class Obl(object):
     See :class:`SocketComDriver` for example.
 
     Args:
-        is_master (bool): Set to ``True`` to be master, ``False`` to be slave
-        com_driver (object): A SATL communication driver
-        skip_init (bool): If ``True`` the initialization phase is skipped
+        com_driver (object): An OBL communication driver
 
     """
 
@@ -83,6 +81,7 @@ class Obl(object):
     def _send(self,str):
         self.frame_tx+=str
         self._com.tx(str.encode("utf-8"))
+        #print(str.encode("utf-8"))
 
     def _receive(self,length):
         out=self._com.rx(length).decode("utf-8")
@@ -117,6 +116,8 @@ class Obl(object):
         while c not in [" ", "\n"]:
             str+=c
             c=self._receive(1)
+            #print("received c=",c)
+        #print("received status=",str)
         return str
 
     def _receive_and_check_status(self):
@@ -185,7 +186,7 @@ class Obl(object):
             self._receive_done()
         return outstr
 
-    def read(self,*,size=1,addr=0,access_width=8,loop_size=256):
+    def read(self,*,size=None,addr=0,access_width=8,loop_size=256):
         """Read
 
         Args:
@@ -200,6 +201,8 @@ class Obl(object):
         assert(access_width in [8,16,32,64])
         assert(self.DATA_SIZE_LIMIT >= loop_size)
         assert(0==(loop_size%(access_width//8)))
+        if size is None:
+            size = access_width // 8
         loops = size // loop_size
         out=bytearray()
         def do_read_cmd(size):
@@ -208,6 +211,7 @@ class Obl(object):
             self._send_len(size)
             self._send_cmd_commit()
             self._receive_and_check_status()
+            #print("receive data",size)
             out = self._receive_data(size)
             self._receive_done()
             return out
@@ -291,6 +295,7 @@ class Obl(object):
         server  = Obl(com_driver=server_com)
         print("Server init done")
         return server
+
 
 class SocketComDriver(object):
     """Com driver for Socket

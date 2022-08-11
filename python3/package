@@ -1,0 +1,24 @@
+#!/bin/bash
+
+rm -f ./dist/*.whl
+rm -f ./dist/*.tar.gz
+
+
+
+if [ -z "$1" ]
+then
+      py=python3
+else
+      py=$1
+fi
+
+echo "Using '$py' as PYTHON"
+
+$py setup.py sdist bdist_wheel
+
+cd dist
+$py -m pip uninstall -y --verbose obl
+whl=$(ls *.whl)
+$py -m pip install --user $whl
+cd ..
+#$py tests/__init__.py
